@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Swim Workout Generator</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0066cc;
+            --secondary-blue: #4da6ff;
+            --accent-cyan: #00bcd4;
+            --light-gray: #f8f9fa;
+            --border-light: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            font-weight: 400;
+        }
+        
+        .hero-section {
+            background-image: url('/static/images/water_hero.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 60vh;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            color: white;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: -0.025em;
+        }
+        
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-weight: 300;
+        }
+        
+        .main-container {
+            padding: 3rem 0;
+            background-color: #f8f9fa;
+        }
+        
+        .workout-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card-body-custom {
+            padding: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+        }
+        
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .equipment-option {
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .equipment-option:hover {
+            border-color: var(--primary-blue);
+            background-color: #f8f9ff;
+        }
+        
+        .equipment-option input[type="checkbox"]:checked + .equipment-content {
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+        
+        .equipment-option input[type="checkbox"]:checked ~ * {
+            border-color: var(--primary-blue);
+        }
+        
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin: 0;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+        
+        .equipment-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn-primary-custom:disabled {
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+        
+        .spinner-custom {
+            width: 3rem;
+            height: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .workout-result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+            white-space: pre-line;
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            display: none;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .workout-result.error {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+            color: #991b1b;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .icon-xl {
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 50vh;
+                min-height: 300px;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+            
+            .main-container {
+                padding: 1.5rem 0;
+            }
+            
+            .card-body-custom {
+                padding: 1.5rem;
+            }
+            
+            .equipment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section with Ocean Wave Background -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1><i class="bi bi-water me-3"></i>Swim Coach</h1>
+            <p>Generate personalized swim workouts with AI</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <div class="row justify-content-center w-100">
+            <div class="col-12">
+                <div class="card workout-card border-0">
+                    <div class="card-body-custom">
+                        <form id="workoutForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="distance" class="form-label">
+                                        <i class="bi bi-rulers me-2"></i>Total Distance
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="distance" name="distance" 
+                                               value="2000" min="500" max="5000" step="100" required>
+                                        <span class="input-group-text">meters</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="stroke" class="form-label">
+                                        <i class="bi bi-tsunami me-2"></i>Focus Stroke
+                                    </label>
+                                    <select class="form-select" id="stroke" name="stroke" required>
+                                        <option value="freestyle">Freestyle</option>
+                                        <option value="backstroke">Backstroke</option>
+                                        <option value="breaststroke">Breaststroke</option>
+                                        <option value="butterfly">Butterfly</option>
+                                        <option value="individual_medley">Individual Medley</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="bi bi-gear me-2"></i>Available Equipment
+                                </label>
+                                <div class="equipment-grid">
+                                    <div class="equipment-option">
+                                        <input type="checkbox" class="form-check-input" id="fins" name="equipment" value="fins">
+                                        <div class="equipment-content">
+                                            <label for="fins" class="mb-0 cursor-pointer">Fins</label>
+                                        </div>
+                                    </div>
+                                    <div class="equipment-option">
+                                        <input type="checkbox" class="form-check-input" id="kickboard" name="equipment" value="kickboard">
+                                        <div class="equipment-content">
+                                            <i class="bi bi-rectangle text-warning"></i>
+                                            <label for="kickboard" class="mb-0 cursor-pointer">Kickboard</label>
+                                        </div>
+                                    </div>
+                                    <div class="equipment-option">
+                                        <input type="checkbox" class="form-check-input" id="paddles" name="equipment" value="paddles">
+                                        <div class="equipment-content">
+                                            <label for="paddles" class="mb-0 cursor-pointer">Paddles</label>
+                                        </div>
+                                    </div>
+                                    <div class="equipment-option">
+                                        <input type="checkbox" class="form-check-input" id="pull_buoy" name="equipment" value="pull_buoy">
+                                        <div class="equipment-content">
+                                            <label for="pull_buoy" class="mb-0 cursor-pointer">Pull Buoy</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="experience" class="form-label">
+                                        <i class="bi bi-trophy me-2"></i>Experience Level
+                                    </label>
+                                    <select class="form-select" id="experience" name="experience" required>
+                                        <option value="beginner">Beginner</option>
+                                        <option value="intermediate" selected>Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="provider" class="form-label">
+                                        <i class="bi bi-robot me-2"></i>AI Provider
+                                    </label>
+                                    <select class="form-select" id="provider" name="provider">
+                                        <option value="gemini" selected>Gemini (Google)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="notes" class="form-label">
+                                    <i class="bi bi-chat-left-text me-2"></i>Additional Notes
+                                    <small class="text-muted">(optional)</small>
+                                </label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="e.g., focus on improving catch technique, preparing for 200m freestyle race, shoulder injury limitations, specific training goals..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-primary-custom">
+                                </i>Generate Workout
+                            </button>
+                        </form>
+                        
+                        <div class="loading-container" id="loading">
+                            <div class="spinner-border spinner-custom text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h5 class="text-muted">Generating your custom workout...</h5>
+                            <p class="text-muted mb-0">AI is analyzing your parameters</p>
+                        </div>
+                        
+                        <div class="workout-result" id="workoutResult">                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.getElementById('workoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                distance: formData.get('distance'),
+                stroke: formData.get('stroke'),
+                equipment: formData.getAll('equipment'),
+                experience: formData.get('experience'),
+                notes: formData.get('notes'),
+                provider: formData.get('provider')
+            };
+            
+            // Set provider first
+            try {
+                await fetch('/set_provider', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({provider: data.provider})
+                });
+            } catch (error) {
+                console.log('Could not set provider, continuing with default');
+            }
+            
+            // Show loading state
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('workoutResult').style.display = 'none';
+            document.querySelector('.btn-primary-custom').disabled = true;
+            
+            // Add loading class to button
+            const submitBtn = document.querySelector('.btn-primary-custom');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Generating...';
+            
+            try {
+                const response = await fetch('/generate_workout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('workoutResult').textContent = result.workout;
+                    document.getElementById('workoutResult').className = 'workout-result';
+                } else {
+                    document.getElementById('workoutResult').textContent = 'Error: ' + result.error;
+                    document.getElementById('workoutResult').className = 'workout-result error';
+                }
+                
+                document.getElementById('workoutResult').style.display = 'block';
+                
+                // Smooth scroll to result
+                document.getElementById('workoutResult').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
+                
+            } catch (error) {
+                document.getElementById('workoutResult').textContent = 'Error: Failed to generate workout. Please check your API configuration and try again.';
+                document.getElementById('workoutResult').className = 'workout-result error';
+                document.getElementById('workoutResult').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.btn-primary-custom').disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        // Add click handlers for equipment options
+        document.querySelectorAll('.equipment-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
