@@ -1,4 +1,3 @@
-# AI Swim Coach
 # AI Swim Workout Generator
 
 A Flask web application that generates personalized swimming workouts using Gemini API. Choose your skill level, desired length, equipment, and experience level and let AI create custom training sessions tailored to your needs.
