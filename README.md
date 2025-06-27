@@ -29,8 +29,9 @@ A Flask web application that generates personalized swimming workouts using Gemi
    ```
 
 4. **Set up environment variables**
-  See directions below
-
+   ```bash
+   See directions below.
+   ```
 6. **Run the application**
    ```bash
    python app.py
