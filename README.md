@@ -34,6 +34,7 @@ A Flask web application that generates personalized swimming workouts using Gemi
    
 6. **Run the application**
    ```bash
+   cd swim_app # if not already in swim_app directory
    python app.py
    ```
 
